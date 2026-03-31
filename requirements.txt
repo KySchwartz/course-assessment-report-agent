@@ -1,0 +1,6 @@
+# .xlxs file analysis
+pandas
+
+# Document generation
+python-docx
+openpyxl

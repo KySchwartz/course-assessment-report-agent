@@ -1,0 +1,11 @@
+The virtual environment was created using the command
+python -m venv .venv
+
+Activating the venv in VS Code
+Press Ctrl + Shift + P (or Cmd + Shift + P on Mac) to open the Command Palette.
+Type "Python: Select Interpreter" and select it.
+Choose the interpreter that points to your virtual environment (it should say ('venv': venv) or show the path to your .venv folder).
+Open a new terminal: Press Ctrl + ` or go to Terminal > New Terminal. VS Code will automatically run the activation script for you every time you open a terminal from now on.
+
+Installing dependencies
+pip install -r requirements.txt
