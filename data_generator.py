@@ -1,43 +1,57 @@
 import pandas as pd
 import random
+import os
 
-def generate_test_data(filename="test_student_data.xlsx", num_students=30, num_assignments=5):
-    # Lists for synthetic data generation
-    first_names = ["James", "Mary", "Robert", "Patricia", "John", "Jennifer", "Michael", "Linda"]
-    last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis"]
-    majors = ["Computer Science", "Cyber Security", "Information Technology", "Data Science"]
+def generate_dynamic_test_suite(filename="test_student_data.xlsx"):
+    # Check if the file is open to avoid PermissionErrors
+    if os.path.exists(filename):
+        try:
+            os.rename(filename, filename)
+        except OSError:
+            print(f"ERROR: The file '{filename}' is open in another program. Please close it and run the script again.")
+            return
+
+    # Define variables
+    num_students = 30
+    first_names = ["Kyle", "Joe", "Matthew", "Luyanda", "Reshmi", "Nipesh", "Sam", "Marilla", "Ivy", "Larry", "Lilly"]
+    last_names = ["Schwartz", "Samples", "Clippard", "Chitofu", "Mitra", "Pant", "Brucker", "Anderson", "DeRousse", "Bartlet", "Stevens"]
+    majors = ["CS", "CY", "CIS"]
     grades = ["A", "B", "C", "D", "E", "F"]
     
-    data = []
-
+    # 1. GENERATE STUDENT DATA
+    student_records = []
     for i in range(num_students):
         f_name = random.choice(first_names)
         l_name = random.choice(last_names)
-        so_num = f"SO{100000 + i}"
-        email = f"{f_name.lower()}.{l_name.lower()}{i}@university.edu"
-        major = random.choice(majors)
-        
-        # Create the base record
         record = {
             "First Name": f_name,
             "Last Name": l_name,
-            "SO Number": so_num,
-            "Email Address": email,
-            "Major": major
+            "SO Number": f"SO{3000 + i}",
+            "Email Address": f"s{i}@university.edu",
+            "Major": random.choice(majors)
         }
-        
-        # Dynamically add assignment columns
-        for a in range(1, num_assignments + 1):
-            # Weighted choice to make 'Met' (A, B, C) more likely for realistic testing
-            record[f"Assignment {a}"] = random.choices(grades, weights=[30, 25, 20, 10, 10, 5])[0]
-            
-        data.append(record)
+        for a in range(1, 7):
+            record[f"Assignment {a}"] = random.choices(grades, weights=[50, 25, 10, 5, 5, 5])[0]
+        student_records.append(record)
+    
+    df_students = pd.DataFrame(student_records)
 
-    # Convert to DataFrame and save to Excel
-    df = pd.DataFrame(data)
-    df.to_excel(filename, index=False)
-    print(f"Successfully generated {filename} with {num_students} students and {num_assignments} assignments.")
+    # 2. GENERATE OBJECTIVE MAPPING
+    mapping_data = [
+        {"Objective ID": "CO-1", "Objective Description": "Understanding Cyberspace attacks.", "Assignments": "Assignment 1"},
+        {"Objective ID": "CO-2", "Objective Description": "Demonstrate cyber defense techniques.", "Assignments": "Assignment 2, Assignment 3"},
+        {"Objective ID": "CO-3", "Objective Description": "Evaluate connected systems.", "Assignments": "Assignment 4"},
+        {"Objective ID": "CO-4", "Objective Description": "Tool development and scripting.", "Assignments": "Assignment 5, Assignment 6"}
+    ]
+    df_mapping = pd.DataFrame(mapping_data)
 
-# Run the generator
+    # 3. SAVE TO MULTIPLE SHEETS
+    # 'openpyxl' is required for multiple sheets
+    with pd.ExcelWriter(filename, engine='openpyxl') as writer:
+        df_students.to_excel(writer, sheet_name='Grades', index=False)
+        df_mapping.to_excel(writer, sheet_name='Objectives', index=False)
+    
+    print(f"Successfully created '{filename}' with sheets: 'Grades' and 'Objectives'.")
+
 if __name__ == "__main__":
-    generate_test_data()
+    generate_dynamic_test_suite()
